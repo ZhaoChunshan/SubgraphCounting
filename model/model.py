@@ -1,5 +1,7 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch_geometric.nn import GCNConv, GINConv, GATConv, SAGEConv
 from base import BaseModel
 
 
@@ -20,3 +22,46 @@ class MnistModel(BaseModel):
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
+
+
+class GCN(BaseModel):
+    def __init__(self, input_size, hidden_size, num_layers):
+        super(GCN, self).__init__()
+
+        self.num_layers = num_layers
+
+        self.conv1 = GCNConv(input_size, hidden_size)
+
+        self.hidden_layers = nn.ModuleList()
+        for _ in range(num_layers - 1):
+            self.hidden_layers.append(GCNConv(hidden_size, hidden_size))
+
+        self.fc = nn.Linear(hidden_size, 1)
+
+    def forward(self, x, edge_index):
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
+
+        for layer in self.hidden_layers:
+            x = layer(x, edge_index)
+            x = F.relu(x)
+
+        # Mean-pooling to get the graph level representation
+        x = torch.mean(x, dim=0)
+
+        # Predict result
+        x = self.fc(x)
+
+        return x
+
+
+class GIN(BaseModel):
+    pass
+
+
+class GAT(BaseModel):
+    pass
+
+
+class GraphSAGE(BaseModel):
+    pass

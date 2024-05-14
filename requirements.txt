@@ -1,5 +1,8 @@
 torch>=1.1
-torchvision
-numpy
-tqdm
+torchvision~=0.17.2
+numpy~=1.26.4
+tqdm~=4.66.2
 tensorboard>=1.14
+
+pandas~=2.2.2
+networkx~=3.2.1

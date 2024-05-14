@@ -24,9 +24,10 @@ def main(config):
     # setup data_loader instances
     data_loader = config.init_obj('data_loader', module_data)
     valid_data_loader = data_loader.split_validation()
+    input_feature_size = data_loader.input_feature_size()
 
     # build model architecture, then print to console
-    model = config.init_obj('arch', module_arch)
+    model = config.init_obj('arch', module_arch, input_size=input_feature_size)
     logger.info(model)
 
     # prepare for (multi-device) GPU training

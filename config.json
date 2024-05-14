@@ -2,17 +2,23 @@
     "name": "Mnist_LeNet",
     "n_gpu": 1,
 
+    "init_feature": "one-hot",
+
     "arch": {
         "type": "MnistModel",
         "args": {}
     },
     "data_loader": {
-        "type": "MnistDataLoader",
+        "type": "SubgraphCountingDataLoader",
         "args":{
+            "input_type": "MPNNDataset",
             "data_dir": "data/",
-            "batch_size": 128,
+            "dataset": "hprd",
+            "query_size": 4,
+            "batch_size": 2,
             "shuffle": true,
-            "validation_split": 0.1,
+            "train_set_max_id": 160,
+            "validation_split": 0.25,
             "num_workers": 2
         }
     },

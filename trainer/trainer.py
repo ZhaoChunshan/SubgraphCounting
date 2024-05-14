@@ -39,7 +39,8 @@ class Trainer(BaseTrainer):
         """
         self.model.train()
         self.train_metrics.reset()
-        for batch_idx, (data, target) in enumerate(self.data_loader):
+        for batch_idx, x in enumerate(self.data_loader):
+            raise NotImplementedError("TODO")
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
