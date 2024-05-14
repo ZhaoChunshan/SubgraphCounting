@@ -39,27 +39,31 @@ class Trainer(BaseTrainer):
         """
         self.model.train()
         self.train_metrics.reset()
-        for batch_idx, x in enumerate(self.data_loader):
-            raise NotImplementedError("TODO")
-            data, target = data.to(self.device), target.to(self.device)
+        for batch_idx, (x_list, edge_index_list, target_log) in enumerate(self.data_loader):
+            for i, (x, edge_index) in enumerate(zip(x_list, edge_index_list)):
+                x_list[i], edge_index_list[i] = x.to(self.device), edge_index.to(self.device)
+            target_log = target_log.to(self.device)
 
             self.optimizer.zero_grad()
-            output = self.model(data)
-            loss = self.criterion(output, target)
+
+            output_log = torch.zeros(size=(len(x_list),), dtype=torch.float, device=self.device)
+            for sample_id in range(len(x_list)):
+                x, edge_index = x_list[sample_id], edge_index_list[sample_id]
+                output_log[sample_id] = self.model(x, edge_index)
+            loss = self.criterion(output_log, target_log)
             loss.backward()
             self.optimizer.step()
 
             self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
             self.train_metrics.update('loss', loss.item())
             for met in self.metric_ftns:
-                self.train_metrics.update(met.__name__, met(output, target))
+                self.train_metrics.update(met.__name__, met(output_log, target_log))
 
             if batch_idx % self.log_step == 0:
                 self.logger.debug('Train Epoch: {} {} Loss: {:.6f}'.format(
                     epoch,
                     self._progress(batch_idx),
                     loss.item()))
-                self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
             if batch_idx == self.len_epoch:
                 break
@@ -83,17 +87,20 @@ class Trainer(BaseTrainer):
         self.model.eval()
         self.valid_metrics.reset()
         with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-                data, target = data.to(self.device), target.to(self.device)
-
-                output = self.model(data)
-                loss = self.criterion(output, target)
+            for batch_idx, (x_list, edge_index_list, target_log) in enumerate(self.valid_data_loader):
+                for i, (x, edge_index) in enumerate(zip(x_list, edge_index_list)):
+                    x_list[i], edge_index_list[i] = x.to(self.device), edge_index.to(self.device)
+                target_log = target_log.to(self.device)
+                output_log = torch.zeros(size=(len(x_list),), dtype=torch.float, device=self.device)
+                for sample_id in range(len(x_list)):
+                    x, edge_index = x_list[sample_id], edge_index_list[sample_id]
+                    output_log[sample_id] = self.model(x, edge_index)
+                loss = self.criterion(output_log, target_log)
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.valid_metrics.update('loss', loss.item())
                 for met in self.metric_ftns:
-                    self.valid_metrics.update(met.__name__, met(output, target))
-                self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                    self.valid_metrics.update(met.__name__, met(output_log, target_log))
 
         # add histogram of model parameters to the tensorboard
         for name, p in self.model.named_parameters():

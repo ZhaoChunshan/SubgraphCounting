@@ -1,12 +1,15 @@
 {
-    "name": "Mnist_LeNet",
+    "name": "SubgraphCounting",
     "n_gpu": 1,
 
     "init_feature": "one-hot",
 
     "arch": {
-        "type": "MnistModel",
-        "args": {}
+        "type": "GCN",
+        "args": {
+            "hidden_size": 128,
+            "num_layers": 3
+        }
     },
     "data_loader": {
         "type": "SubgraphCountingDataLoader",
@@ -15,7 +18,7 @@
             "data_dir": "data/",
             "dataset": "hprd",
             "query_size": 4,
-            "batch_size": 2,
+            "batch_size": 4,
             "shuffle": true,
             "train_set_max_id": 160,
             "validation_split": 0.25,
@@ -30,9 +33,11 @@
             "amsgrad": true
         }
     },
-    "loss": "nll_loss",
+    "loss": "log_mse_loss",
     "metrics": [
-        "accuracy", "top_k_acc"
+        "log_q_error_range", "log_q_error_median",
+        "log_q_error_95", "log_q_error_75", "log_q_error_25", "log_q_error_5",
+        "log_q_error_max", "log_q_error_min"
     ],
     "lr_scheduler": {
         "type": "StepLR",

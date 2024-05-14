@@ -61,7 +61,7 @@ def get_edge_index(graph: networkx.Graph):
 
 
 def one_hot_encoding(graph: networkx.Graph, max_label_count):
-    features = torch.zeros(size=(graph.number_of_nodes(), max_label_count), dtype=torch.float64)
+    features = torch.zeros(size=(graph.number_of_nodes(), max_label_count), dtype=torch.float)
     for v in graph.nodes():
         label = graph.nodes[v]["label"]
         features[v][label] = 1.0

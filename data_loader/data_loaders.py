@@ -44,5 +44,5 @@ class SubgraphCountingDataLoader(BaseDataLoader):
 def mpnn_collate_fn(batch):
     x = [sample[0] for sample in batch]
     edge_index = [sample[1] for sample in batch]
-    log_count = torch.tensor([sample[2] for sample in batch], dtype=torch.float64)
+    log_count = torch.tensor([sample[2] for sample in batch], dtype=torch.float)
     return x, edge_index, log_count

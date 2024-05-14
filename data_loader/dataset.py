@@ -61,7 +61,7 @@ class MPNNDataset(Dataset):
         """
         node_features = one_hot_encoding(query_graph, self.label_count)
         edge_index = get_edge_index(query_graph)
-        log_count = torch.tensor(np.log(count))
+        log_count = torch.tensor(np.log10(count))
         return node_features, edge_index, log_count
 
     def __len__(self):
