@@ -14,7 +14,6 @@
     "data_loader": {
         "type": "SubgraphCountingDataLoader",
         "args":{
-            "input_type": "MPNNDataset",
             "data_dir": "data/",
             "dataset": "hprd",
             "query_size": 4,

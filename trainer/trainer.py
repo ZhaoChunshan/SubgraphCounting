@@ -39,7 +39,7 @@ class Trainer(BaseTrainer):
         """
         self.model.train()
         self.train_metrics.reset()
-        for batch_idx, (x_list, edge_index_list, target_log) in enumerate(self.data_loader):
+        for batch_idx, (x_list, edge_index_list, target_log, _) in enumerate(self.data_loader):
             for i, (x, edge_index) in enumerate(zip(x_list, edge_index_list)):
                 x_list[i], edge_index_list[i] = x.to(self.device), edge_index.to(self.device)
             target_log = target_log.to(self.device)
@@ -87,7 +87,7 @@ class Trainer(BaseTrainer):
         self.model.eval()
         self.valid_metrics.reset()
         with torch.no_grad():
-            for batch_idx, (x_list, edge_index_list, target_log) in enumerate(self.valid_data_loader):
+            for batch_idx, (x_list, edge_index_list, target_log, _) in enumerate(self.valid_data_loader):
                 for i, (x, edge_index) in enumerate(zip(x_list, edge_index_list)):
                     x_list[i], edge_index_list[i] = x.to(self.device), edge_index.to(self.device)
                 target_log = target_log.to(self.device)

@@ -22,7 +22,7 @@ def main(config):
     logger = config.get_logger('train')
 
     # setup data_loader instances
-    data_loader = config.init_obj('data_loader', module_data)
+    data_loader = config.init_obj('data_loader', module_data, model_type=config['arch']['type'])
     valid_data_loader = data_loader.split_validation()
     input_feature_size = data_loader.input_feature_size()
 

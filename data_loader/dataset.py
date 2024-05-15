@@ -52,17 +52,17 @@ class MPNNDataset(Dataset):
         :param queries: List containing tuple (query_graph, query_name, count),
         """
         self.label_count = 1 + max(networkx.get_node_attributes(data_graph, 'label').values())
-        self.data = [self.__transform(query[0], query[2]) for query in queries]
+        self.data = [self.__transform(query[0], query[2], query[1]) for query in queries]
 
-    def __transform(self, query_graph, count):
+    def __transform(self, query_graph, count, query_name):
         """
         Transform query_graph to tensors that will be fed forward to MPNN.
-        Return node_features, edge_index, log(count+1)
+        Return node_features, edge_index, log(count+1), query_name
         """
         node_features = one_hot_encoding(query_graph, self.label_count)
         edge_index = get_edge_index(query_graph)
         log_count = torch.tensor(np.log10(count))
-        return node_features, edge_index, log_count
+        return node_features, edge_index, log_count, query_name
 
     def __len__(self):
         return len(self.data)
