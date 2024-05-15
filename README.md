@@ -3,7 +3,9 @@
 ## Progress
 
 + 20240512: Init the repository from [pytorch-template](https://github.com/victoresque/pytorch-template).
-+ 
++ 20240513: Upload example dataset `hprd`.
++ 20240514: Implement dataset, dataloader, train, GCN.
++ 20240515: Implement model evaluation. (Finish the entire workflow.) 
 
 ## Thanks
 
