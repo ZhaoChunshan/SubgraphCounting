@@ -56,12 +56,102 @@ class GCN(BaseModel):
 
 
 class GIN(BaseModel):
-    pass
+    def __init__(self, input_size, hidden_size, num_layers, mlp_layers=2, dropout=0.5):
+        super(GIN, self).__init__()
+
+        self.num_layers = num_layers
+        self.dropout = dropout
+
+        # Create MLP for the first GINConv layer
+        mlp = [nn.Linear(input_size, hidden_size), nn.ReLU()]
+        for _ in range(mlp_layers - 1):
+            mlp.append(nn.Linear(hidden_size, hidden_size))
+            mlp.append(nn.ReLU())
+        self.conv1 = GINConv(nn.Sequential(*mlp))
+
+        self.hidden_layers = nn.ModuleList()
+        for _ in range(num_layers - 1):
+            mlp = [nn.Linear(hidden_size, hidden_size), nn.ReLU()]
+            for _ in range(mlp_layers - 1):
+                mlp.append(nn.Linear(hidden_size, hidden_size))
+                mlp.append(nn.ReLU())
+            self.hidden_layers.append(GINConv(nn.Sequential(*mlp)))
+
+        self.fc = nn.Linear(hidden_size, 1)
+
+    def forward(self, x, edge_index):
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, p=self.dropout, training=self.training)
+
+        for layer in self.hidden_layers:
+            x = layer(x, edge_index)
+            x = F.relu(x)
+            x = F.dropout(x, p=self.dropout, training=self.training)
+
+        x = torch.mean(x, dim=0)
+        x = self.fc(x)
+
+        return x
 
 
 class GAT(BaseModel):
-    pass
+    def __init__(self, input_size, hidden_size, num_layers, heads=8):
+        super(GAT, self).__init__()
+
+        self.num_layers = num_layers
+
+        self.conv1 = GATConv(input_size, hidden_size, heads=heads)
+
+        self.hidden_layers = nn.ModuleList()
+        for _ in range(num_layers - 1):
+            self.hidden_layers.append(GATConv(hidden_size * heads, hidden_size, heads=heads))
+
+        self.fc = nn.Linear(hidden_size * heads, 1)
+
+    def forward(self, x, edge_index):
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
+
+        for layer in self.hidden_layers:
+            x = layer(x, edge_index)
+            x = F.relu(x)
+
+        # Mean-pooling to get the graph level representation
+        x = torch.mean(x, dim=0)
+
+        # Predict result
+        x = self.fc(x)
+
+        return x
 
 
 class GraphSAGE(BaseModel):
-    pass
+    def __init__(self, input_size, hidden_size, num_layers):
+        super(GraphSAGE, self).__init__()
+
+        self.num_layers = num_layers
+
+        self.conv1 = SAGEConv(input_size, hidden_size)
+
+        self.hidden_layers = nn.ModuleList()
+        for _ in range(num_layers - 1):
+            self.hidden_layers.append(SAGEConv(hidden_size, hidden_size))
+
+        self.fc = nn.Linear(hidden_size, 1)
+
+    def forward(self, x, edge_index):
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
+
+        for layer in self.hidden_layers:
+            x = layer(x, edge_index)
+            x = F.relu(x)
+
+        # Mean-pooling to get the graph level representation
+        x = torch.mean(x, dim=0)
+
+        # Predict result
+        x = self.fc(x)
+
+        return x
