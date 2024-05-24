@@ -105,6 +105,8 @@ data/
 input/
 saved/
 datasets/
+result_plot/
+exp_log/
 
 # editor, os cache directory
 .vscode/

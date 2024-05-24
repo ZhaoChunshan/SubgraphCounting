@@ -1,4 +1,5 @@
 import argparse
+import collections
 import torch
 import networkx
 from tqdm import tqdm
@@ -75,7 +76,7 @@ def main(config):
             # evaluation the prediction
             ground_truth, predict = torch.pow(10, log_count).item(), torch.pow(10, output).item() #ground truth, predict is x+1
             ground_truth, predict = round(ground_truth), round(predict)
-            q_error = max(ground_truth, predict) / min(ground_truth, predict)    # q_error is max(c+1, c'+1)/min(c+1, c'+1)
+            q_error = max(ground_truth, predict) / max(min(ground_truth, predict), 1)    # q_error is max(c+1, c'+1)/min(c+1, c'+1)
             log_q_error = (output - log_count).item()
             result.append([query_name, ground_truth, predict, q_error, log_q_error])
 
@@ -115,6 +116,14 @@ if __name__ == '__main__':
                       help='path to latest checkpoint (default: None)')
     args.add_argument('-d', '--device', default=None, type=str,
                       help='indices of GPUs to enable (default: all)')
+    
+    CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
+    options = [
+        CustomArgs(['--a', '--arch_type'], type=str, target='arch;type'),
+        CustomArgs(['--k', '--num_layers'], type=int, target='arch;args;num_layers'),
+        CustomArgs(['--d', '--dataset'], type=str, target='data_loader;args;dataset'),
+        CustomArgs(['--q', '--query_size'], type=int, target='data_loader;args;query_size'),
+    ]
 
-    config = ConfigParser.from_args(args)
+    config = ConfigParser.from_args(args, options)
     main(config)

@@ -68,7 +68,11 @@ if __name__ == '__main__':
     CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
     options = [
         CustomArgs(['--lr', '--learning_rate'], type=float, target='optimizer;args;lr'),
-        CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
+        CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size'),
+        CustomArgs(['--a', '--arch_type'], type=str, target='arch;type'),
+        CustomArgs(['--k', '--num_layers'], type=int, target='arch;args;num_layers'),
+        CustomArgs(['--d', '--dataset'], type=str, target='data_loader;args;dataset'),
+        CustomArgs(['--q', '--query_size'], type=int, target='data_loader;args;query_size'),
     ]
     config = ConfigParser.from_args(args, options)
     main(config)
