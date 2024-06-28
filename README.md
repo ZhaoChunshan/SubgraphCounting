@@ -20,7 +20,7 @@ python test.py -r ./saved/models/path_to_your_trained_model_best.pth
 ## Folder Structure
 
   ```
-pytorch-template/
+SubgraphCounting/
 │
 ├── train.py - main script to start training
 ├── test.py - evaluation of trained model
